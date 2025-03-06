@@ -10,7 +10,7 @@ import "google/protobuf/timestamp.proto";
 service TodoService{
 	rpc TodoItemsAll(google.protobuf.Empty) returns (TodoItemsReply);
 	rpc TodoTaskCreate(TodoTaskCreateRequest) returns (ResultReply);
-	rpc TodoTaskUpdate(TodoTaskCreateRequest) returns (ResultReply);
+	rpc TodoTaskUpdate(TodoItemUpdateRequest) returns (ResultReply);
 	rpc TodoItemById(TodoItemIdRequest) returns (TodoItemReply);
 	rpc TodoItemByIdDelete(TodoItemIdRequest) returns (ResultReply);
 }
@@ -34,7 +34,7 @@ message TodoItemUpdateRequest{
 }
 
 message TodoItemsReply{
-	repeated TodoItemReply todo_items = 1;
+	repeated TodoItemReply todo_item = 1;
 }
 
 message TodoTaskCreateRequest{
