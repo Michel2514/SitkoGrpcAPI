@@ -1,0 +1,54 @@
+syntax = "proto3";
+option csharp_namespace = "SitkoClient";
+
+package todo;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service TodoService{
+	rpc TodoItemsAll(google.protobuf.Empty) returns (TodoItemsReply);
+	rpc TodoTaskCreate(TodoTaskCreateRequest) returns (ResultReply);
+	rpc TodoTaskUpdate(TodoItemUpdateRequest) returns (ResultReply);
+	rpc TodoItemById(TodoItemIdRequest) returns (TodoItemReply);
+	rpc TodoItemByIdDelete(TodoItemIdRequest) returns (ResultReply);
+}
+
+message TodoItemReply{
+	string id = 1;
+	string name = 2;
+	google.protobuf.Timestamp creation_date = 3;
+	google.protobuf.Timestamp execution_date = 4;
+	bool completed = 5;
+	google.protobuf.StringValue description = 6;
+}
+
+message TodoItemUpdateRequest{ 
+	string id = 1;
+	string name = 2;
+	google.protobuf.Timestamp creation_date = 3;
+	google.protobuf.Timestamp execution_date = 4;
+	bool completed = 5;
+	google.protobuf.StringValue description = 6;
+}
+
+message TodoItemsReply{
+	repeated TodoItemReply todo_item = 1;
+}
+
+message TodoTaskCreateRequest{
+	string name = 1;
+	google.protobuf.Timestamp creation_date = 2;
+	google.protobuf.Timestamp execution_date = 3;
+	bool completed = 4;
+	google.protobuf.StringValue description = 5;
+}
+
+message TodoItemIdRequest{
+	string id = 1;
+}
+
+message ResultReply {
+	bool result = 1;
+}

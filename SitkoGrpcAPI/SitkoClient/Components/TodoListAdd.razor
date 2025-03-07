@@ -1,0 +1,36 @@
+﻿@page "/TodoListAdd"
+@using Google.Protobuf.WellKnownTypes
+
+@rendermode InteractiveServer
+
+
+<div class="tre g-col-6">
+    <EditForm Model="_todoItemComponent" OnValidSubmit="SaveTodoList">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <MudTextField Label="Добавить задачу"
+                      @bind-Value="_todoItemComponent.Name" 
+                      For="@(() => _todoItemComponent.Name)"
+                      RequiredError="!"
+                      OnlyValidateIfDirty="true"/>
+    </EditForm>
+</div> 
+
+@code {
+    // [Parameter] 
+    // public EventCallback<TodoItem> OnAfterItemAdded { get; set; }
+    private TodoTaskCreateRequest _todoItemComponent = new();
+
+    private async Task SaveTodoList()
+    {
+        using var channel = GrpcChannel.ForAddress("https://localhost:7126");
+        var todo = new TodoService.TodoServiceClient(channel);
+        // todo.TodoItemByIdAsync(new TodoItemIdRequest { Id = "" });
+        // var e = await todo.TodoItemsAllAsync(new Google.Protobuf.WellKnownTypes.Empty());
+        _todoItemComponent.CreationDate = DateTime.UtcNow.ToTimestamp();
+        _todoItemComponent.ExecutionDate = new Timestamp();
+         await todo.TodoTaskCreateAsync(_todoItemComponent);
+
+    }
+    
+}
