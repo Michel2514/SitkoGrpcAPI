@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SitkoGrpcAPI;
 using SitkoGrpcAPI.Data;
 using SitkoGrpcAPI.Services;
 

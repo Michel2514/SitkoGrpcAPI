@@ -1,5 +1,7 @@
 using MudBlazor.Services;
+using SitkoClient;
 using SitkoClient.Components;
+using SitkoClient.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddMudServices();
-var app = builder.Build();
+builder.Services.AddScoped<ITodoService, TodoClientService>();
 
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
