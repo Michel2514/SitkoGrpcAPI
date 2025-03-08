@@ -6,13 +6,13 @@ namespace SitkoClient.Services
     {
         private string APIgRPCService = "https://localhost:7126";
 
-        public async Task<TodoItemsReply> TodoListAllAsync()
+        public async Task<List<TodoItemReply>> TodoListAllAsync()
         {
             using var channel = GrpcChannel.ForAddress(APIgRPCService);
             var todo = new SitkoClient.TodoService.TodoServiceClient(channel);
-
-            return await todo.TodoItemsAllAsync
+            var resultReply = await todo.TodoItemsAllAsync
                 (new Google.Protobuf.WellKnownTypes.Empty());
+            return resultReply.TodoItem.ToList();
         }
 
         public async Task<bool> TodoTaskCreateAsync(TodoTaskCreateRequest todoItem)

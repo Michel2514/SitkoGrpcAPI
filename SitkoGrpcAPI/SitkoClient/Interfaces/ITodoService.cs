@@ -2,7 +2,7 @@
 {
     public interface ITodoService
     {
-        Task<TodoItemsReply> TodoListAllAsync();
+        Task<List<TodoItemReply>> TodoListAllAsync();
         Task<bool> TodoTaskCreateAsync(TodoTaskCreateRequest todoItem);
         Task<bool> TodoTaskUpdateAsync(TodoItemUpdateRequest todoItemId);
         Task<TodoItemReply> TodoItemByIdAsync(TodoItemIdRequest todoItemId);

@@ -1,0 +1,213 @@
+﻿@page "/"
+@using System.Diagnostics
+@using System.Globalization
+@using SitkoClient.Enums
+@rendermode InteractiveServer
+@inject ITodoService _servise
+
+<div>
+    <MudItem>
+        <MudGrid>
+            <MudCardContent Class="object-center">
+                @* <TodoListAdd OnAfterItemAdded="OnAfterAddedTaskItem"/> *@
+                <MudCardActions Class="align-center justify-center">
+                    <MudToggleGroup T="LastActiveButton" SelectionMode="SelectionMode.SingleSelection"
+                                    @bind-Value="lastActiveButton" Color="Color.Primary" CheckMark FixedContent>
+                        <MudToggleItem Value="@(LastActiveButton.AllList)">
+                            <MudButton @onclick="AllList">Все</MudButton>
+                        </MudToggleItem>
+                        <MudToggleItem Value="LastActiveButton.ListCompleted">
+                            <MudButton @onclick="ListCompleted">Выполненые</MudButton>
+                        </MudToggleItem>
+                        <MudToggleItem Value="@(LastActiveButton.ListActive)">
+                            <MudButton @onclick="ListActive">Активные</MudButton>
+                        </MudToggleItem>
+                    </MudToggleGroup>
+                </MudCardActions>
+            </MudCardContent>
+        </MudGrid>
+
+        <MudStack Class="align-center justify-center" Row="true">
+            <MudText Typo="Typo.h4" Class="re">Список задач</MudText>
+            <MudMenu Icon="@Icons.Material.Outlined.FilterAlt" AriaLabel="Open user menu">
+                <MudMenuItem>
+                    <MudIconButton Icon="@Icons.Material.Outlined.TextFormat" 
+                                   OnClick="@(async () => await Sort(FilterActive.SortAlphabetically))"/>
+                    <MudText Inline="true">По алфавиту</MudText>
+                </MudMenuItem>
+                <MudMenuItem>
+                    <MudIconButton Icon="@Icons.Material.Outlined.CalendarMonth"
+                                   OnClick="@(async () => await Sort(FilterActive.SortCreationDate))" />
+                    <MudText Inline="true">По дате открытия</MudText>
+                </MudMenuItem>
+                <MudMenuItem>
+                    <MudIconButton Icon="@Icons.Material.Outlined.CalendarToday" 
+                                   OnClick="@(async () => await Sort(FilterActive.SortExecutionDate))"></MudIconButton>
+                    <MudText Inline="true">По дате закрытия</MudText>
+                </MudMenuItem>
+            </MudMenu>
+        </MudStack >
+        <MudStack Class="align-center justify-start" Row="true">
+            <MudToggleIconButton @bind-Toggled="sortDirectionToggled"
+                                 Icon="@Icons.Material.Filled.ExpandMore"
+                                 ToggledIcon="@Icons.Material.Filled.ExpandLess" />
+            <MudText Inline="true">@filterActive</MudText>
+        </MudStack>
+    </MudItem>
+
+    <div>
+        <TodoList TodoItems="todoItemsFiltered"
+                  TodoListService="_servise"
+                  TaskListPage="taskListPage"
+                  OnAfterItemChengeInStatus="OnAfterItemChangeInStatus"/>
+    </div>
+</div>
+
+
+
+@code {
+    private List<TodoItemReply> todoItemsFiltered { get; set; } = new();
+    [Parameter] public TaskList taskListPage { get; set; }
+    private LastActiveButton lastActiveButton;
+    private List<TodoItemReply> todoItems = new();
+    private string filterActive = "По алфавиту";
+    private bool sortDirectionToggled;
+    private SortDirection sortDirection;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetAllTodos();
+    }
+
+   
+    private async Task GetAllTodos()
+    {
+        todoItems = await _servise.TodoListAllAsync();
+        PageActive();
+    }
+
+    private void OnAfterItemChangeInStatus()
+    {
+        PageActive();
+    }
+
+    private void OnAfterAddedTaskItem(TodoItemReply val)
+    {
+        todoItems.Add(val);
+        PageActive();
+    }
+
+    private void AllList()
+    {
+        todoItemsFiltered = todoItems;
+        lastActiveButton = LastActiveButton.AllList;
+    }
+
+    private void ListCompleted()
+    {
+
+        todoItemsFiltered =  todoItems.Where(_ => _.Completed).ToList();
+        lastActiveButton = LastActiveButton.ListCompleted;
+    }
+
+    private void ListActive()
+    {
+        todoItemsFiltered = todoItems.Where(_ => !_.Completed).ToList();
+        lastActiveButton = LastActiveButton.ListActive;
+    }
+    private async Task Sort(FilterActive filterActive)
+    {
+        sortDirection = 
+            sortDirection == SortDirection.Ascending
+            ? SortDirection.Descending : SortDirection.Ascending;
+         sortDirectionToggled = sortDirection == SortDirection.Ascending;
+        switch (filterActive)
+        {
+            case FilterActive.SortAlphabetically:
+                SortAlphabetically();
+                break;
+            case FilterActive.SortExecutionDate:
+                SortExecutionDate();
+                break;
+            case FilterActive.SortCreationDate:
+                SortCreationDate();
+                break;
+        }
+        PageActive();
+    }
+    private void SortAlphabetically()
+    {
+        switch (sortDirection)
+        {
+            case SortDirection.Ascending:
+                todoItems = todoItems
+                    .OrderBy(x => x.Name).ToList();
+                break;
+            case SortDirection.Descending:
+                todoItems = todoItems.OrderByDescending(x => x.Name).ToList();
+                break;
+        }
+        filterActive = "По алфавиту";
+    }
+
+    private void SortExecutionDate()
+    {
+        switch (sortDirection)
+        {
+            case SortDirection.Ascending:
+                todoItems = todoItems
+                    .OrderBy(x => x.ExecutionDate).ToList();
+                break;
+            case SortDirection.Descending:
+                todoItems = todoItems.OrderByDescending(x => x.ExecutionDate).ToList();
+                break;
+        }
+        filterActive = "По дате закрытия";
+    }
+
+    private void SortCreationDate()
+    {
+        switch (sortDirection)
+        {
+            case SortDirection.Ascending:
+                todoItems = todoItems
+                    .OrderBy(x => x.CreationDate).ToList();
+                break;
+            case SortDirection.Descending:
+                todoItems = todoItems.OrderByDescending(x => x.CreationDate).ToList();
+                break;
+        }
+        filterActive = "По дате открытия";
+    }
+   
+
+    private void PageActive()
+    {
+        switch (lastActiveButton)
+        {
+            case LastActiveButton.AllList:
+                AllList();
+                break;
+            case LastActiveButton.ListCompleted:
+                ListCompleted();
+                break;
+            case LastActiveButton.ListActive:
+                ListActive();
+                break;
+        }
+    }
+
+    enum FilterActive
+    {
+        SortAlphabetically,
+        SortExecutionDate,
+        SortCreationDate
+    }
+
+    enum SortDirection
+    {
+        Ascending,
+        Descending
+        
+    }
+}

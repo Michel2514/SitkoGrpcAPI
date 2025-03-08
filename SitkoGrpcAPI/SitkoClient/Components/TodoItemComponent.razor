@@ -1,0 +1,47 @@
+﻿@using Google.Protobuf.WellKnownTypes
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<MudPaper Class="pa-4 mud-theme-primary form-control">
+    <MudStack StretchItems="@stretch" Row>
+        <MudCheckBox @bind-Value="@TodoItem.Completed" @onclick="CompleteTask"></MudCheckBox>
+        @* <MudTextField  disabled="true" @bind-Value="@TodoItem.Name"></MudTextField> *@
+        <MudButton Variant="Variant.Text" OnClick="DescriptionGet" Style="justify-content: flex-start;">@TodoItem.Name</MudButton>
+        <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" OnClick="Delete"/>
+        
+    </MudStack>
+</MudPaper>
+
+
+@code {
+    [Parameter] 
+    public TodoItemReply TodoItem { get; set; }
+    [Parameter]
+    public EventCallback<TodoItemReply> OnAfterItemDeleted { get; set; }
+    [Parameter] public ITodoService TodoListService { get; set; }
+    [Parameter]
+    public EventCallback<TodoItemReply> OnAfterItemChange { get; set; }
+    StretchItems stretch = StretchItems.Middle;
+
+    public async Task DescriptionGet()
+    {
+        Navigation.NavigateTo($"TaskDescription/{TodoItem.Id}");
+    }
+
+    public async Task CompleteTask()
+    {
+        if (TodoItem.Completed)
+            TodoItem.ExecutionDate = null;
+        else
+            TodoItem.ExecutionDate = DateTime.UtcNow.ToTimestamp();
+
+        await TodoListService.TodoTaskUpdateAsync(TodoItem);
+        await OnAfterItemChange.InvokeAsync(TodoItem);
+    }
+   
+    public async Task Delete()
+    {
+        await TodoListService.TodoItemByIdDeleteAsync(TodoItem.Id);
+        await OnAfterItemDeleted.InvokeAsync(TodoItem);
+    }
+}
