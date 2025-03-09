@@ -69,12 +69,14 @@
 
 @code {
     private List<TodoItemGrpc> todoItemsFiltered { get; set; } = new();
-    [Parameter] public TaskList taskListPage { get; set; }
+    [Parameter] 
+    public TaskList taskListPage { get; set; }
     private LastActiveButton lastActiveButton;
     private List<TodoItemGrpc> todoItems = new();
     private string filterActive = "По алфавиту";
     private bool sortDirectionToggled;
     private SortDirection sortDirection;
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
