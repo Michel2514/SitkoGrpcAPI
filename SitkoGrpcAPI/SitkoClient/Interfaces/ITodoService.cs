@@ -2,10 +2,10 @@
 {
     public interface ITodoService
     {
-        Task<List<TodoItemReply>> TodoListAllAsync();
-        Task<bool> TodoTaskCreateAsync(TodoTaskCreateRequest todoItem);
-        Task<bool> TodoTaskUpdateAsync(TodoItemUpdateRequest todoItemId);
-        Task<TodoItemReply> TodoItemByIdAsync(TodoItemIdRequest todoItemId);
-        Task<bool> TodoItemByIdDeleteAsync(TodoItemIdRequest todoItemId);
+        Task<List<TodoItemGrpc>> TodoListAllAsync();
+        Task<TodoItemGrpc> TodoTaskCreateAsync(TodoTaskCreateRequest todoItem);
+        Task<bool> TodoTaskUpdateAsync(TodoItemGrpc todoItemId);
+        Task<TodoItemGrpc> TodoItemByIdAsync(string todoItemId);
+        Task<bool> TodoItemByIdDeleteAsync(string todoItemId);
     }
 }

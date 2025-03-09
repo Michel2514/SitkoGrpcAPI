@@ -1,0 +1,19 @@
+﻿.re {
+    text-align: center;
+    margin-top:10px;
+    margin-bottom:10px;
+}
+.tre{
+    margin:auto;
+    margin-top: 50px;
+    width: 50%;
+    text-align:center;
+}
+.item-p, p {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+.button .text-left-align {
+    justify-content: flex-start;
+    text-align: left;
+}

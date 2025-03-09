@@ -16,7 +16,7 @@ namespace SitkoGrpcAPI.Services
 
         public override async Task<TodoItemsReply> TodoItemsAll(Empty request, ServerCallContext context)
         {
-            var todoItemsReply = await _db.TodoItems.Select(x => new TodoItemReply
+            var todoItemsReply = await _db.TodoItems.Select(x => new TodoItemGrpc
             {
                 Id = x.Id.ToString(),
                 Name = x.Name,
@@ -31,23 +31,24 @@ namespace SitkoGrpcAPI.Services
             return await Task.FromResult(todoItemsReplyList);
         }
 
-        public override async Task<TodoItemReply> TodoItemById(TodoItemIdRequest request, ServerCallContext context)
+        public override async Task<TodoItemGrpc> TodoItemById(TodoItemIdRequest request, ServerCallContext context)
         {
             var todoItemByIdReply = await TodoItemGetById(request.Id);
             if (todoItemByIdReply != null)
             {
-                return await Task.FromResult(new TodoItemReply
+                return await Task.FromResult(new TodoItemGrpc
                 {
                     Id = request.Id,
                     Name = todoItemByIdReply.Name,
                     Completed = todoItemByIdReply.Completed,
-                    ExecutionDate = todoItemByIdReply.ExecutionDate!.Value.ToTimestamp(),
                     CreationDate = todoItemByIdReply.CreationDate.ToTimestamp(),
+                    ExecutionDate = todoItemByIdReply.ExecutionDate!.Value.ToTimestamp(),
+
                     Description = todoItemByIdReply.Description
                 });
             }
 
-            return new TodoItemReply();
+            return new TodoItemGrpc();
         }
 
         public override async Task<ResultReply> TodoItemByIdDelete(TodoItemIdRequest request, ServerCallContext context)
@@ -72,7 +73,7 @@ namespace SitkoGrpcAPI.Services
             }
         }
 
-        public override async Task<ResultReply> TodoTaskCreate
+        public override async Task<TodoItemGrpc> TodoTaskCreate
             (TodoTaskCreateRequest request, ServerCallContext context)
         {
             try
@@ -82,21 +83,29 @@ namespace SitkoGrpcAPI.Services
                     Name = request.Name,
                     Completed = request.Completed,
                     CreationDate = DateTime.UtcNow,
-                    ExecutionDate = request.ExecutionDate.ToDateTime(),
+                    ExecutionDate = new Timestamp().ToDateTime(),
                     Description = request.Description,
                 };
                 await _db.TodoItems.AddAsync(todoParse);
                 await _db.SaveChangesAsync();
-                return await Task.FromResult(new ResultReply { Result = true });
+                return await Task.FromResult(new TodoItemGrpc
+                {
+                    Id = todoParse.Id.ToString(),
+                    Name = todoParse.Name,
+                    Completed = todoParse.Completed,
+                    CreationDate = todoParse.CreationDate.ToTimestamp(),
+                    ExecutionDate = todoParse.ExecutionDate.Value.ToTimestamp(),
+                    Description = todoParse.Description
+                });
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return await Task.FromResult(new ResultReply { Result = false });
+                return await Task.FromResult(new TodoItemGrpc());
             }
         }
 
-        public override async Task<ResultReply> TodoTaskUpdate(TodoItemUpdateRequest request, ServerCallContext context)
+        public override async Task<ResultReply> TodoTaskUpdate(TodoItemGrpc request, ServerCallContext context)
         {
             try
             {
@@ -107,9 +116,10 @@ namespace SitkoGrpcAPI.Services
                     todoById.ExecutionDate = request.ExecutionDate.ToDateTime();
                     todoById.Completed = request.Completed;
                     todoById.Description = request.Description;
-
+                    await _db.SaveChangesAsync();
                     return await Task.FromResult(new ResultReply { Result = true });
                 }
+
 
                 Console.WriteLine("todoItem не найден");
                 return await Task.FromResult(new ResultReply { Result = false });

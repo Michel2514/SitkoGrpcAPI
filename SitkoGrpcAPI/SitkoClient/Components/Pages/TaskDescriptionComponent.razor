@@ -1,0 +1,61 @@
+﻿@page "/TaskDescription/{TodoItemId}"
+@using Google.Protobuf.WellKnownTypes
+@rendermode InteractiveServer
+@inject ITodoService _servise
+@inject NavigationManager Navigation
+
+<EditForm Model="@TodoItem" OnValidSubmit="ChangedSave">
+    <DataAnnotationsValidator />
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudStack Class="pa-4" Row="true">
+                        <MudCheckBox T="bool" @bind-Value="TodoItem.Completed" />
+                        <MudTextField @bind-Value="TodoItem.Name"
+                                      For="@(() => TodoItem.Name)"
+                                      HelperText="Задача" />
+                    </MudStack>
+                    <MudDatePicker @bind-Date="CreationDate"
+                                   ReadOnly="true"
+                                   HelperText="Дата создания" />
+                    <MudDatePicker @bind-Date="ExecutionDate"
+                                   HelperText="Дата закрытия" />
+                    <MudTextField T="string" Label="Добавить заметку" Lines="3"
+                                  Variant="Variant.Outlined"
+                                  @bind-Value="@TodoItem.Description"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.Api" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Сохранить</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+
+@code {
+    [Parameter] public string TodoItemId { get; set; } = "";
+    [Parameter] public TodoItemGrpc TodoItem { get; set; } = new TodoItemGrpc();
+    private DateTime? CreationDate = new();
+    private DateTime? ExecutionDate = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        TodoItem = await _servise.TodoItemByIdAsync(TodoItemId);
+        CreationDate = TodoItem.CreationDate.ToDateTime();
+        ExecutionDate = TodoItem.ExecutionDate.ToDateTime();
+    }
+
+    private async Task ChangedSave()
+    {
+        TodoItem.ExecutionDate = ExecutionDate!.Value.ToTimestamp();
+        await _servise.TodoTaskUpdateAsync(TodoItem);
+        Navigation.NavigateTo("/");
+    }
+
+}
+
+

@@ -1,0 +1,28 @@
+﻿@using SitkoClient.Components.Pages
+
+
+<div>
+    @foreach (var item in TodoItems)
+    {
+        <TodoItemComponent TodoItem="@item" TodoListService="TodoListService"
+                           OnAfterItemDeleted="OnAfterDeletedTaskItem"
+        />
+    }
+</div>
+
+@* OnAfterItemChange="OnAfterItemChengeInStatus"  *@
+@code {
+    [Parameter] public List<TodoItemGrpc> TodoItems { get; set; } = new();
+    [Parameter] public ITodoService TodoListService { get; set; }
+    [Parameter] public TaskList TaskListPage { get; set; }
+    [Parameter] public EventCallback<TodoItemGrpc> OnAfterItemChengeInStatus { get; set; }
+    // private async Task OnAfterItemChange(TodoItem val){
+
+    // }
+
+    private async Task OnAfterDeletedTaskItem(TodoItemGrpc val)
+    {
+        TodoItems.Remove(val);
+    }
+
+}

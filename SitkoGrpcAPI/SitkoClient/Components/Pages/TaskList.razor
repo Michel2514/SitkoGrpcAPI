@@ -2,14 +2,17 @@
 @using System.Diagnostics
 @using System.Globalization
 @using SitkoClient.Enums
+@using SortDirection = MudBlazor.SortDirection
 @rendermode InteractiveServer
 @inject ITodoService _servise
 
+
 <div>
+
     <MudItem>
         <MudGrid>
             <MudCardContent Class="object-center">
-                @* <TodoListAdd OnAfterItemAdded="OnAfterAddedTaskItem"/> *@
+                <TodoListAdd OnAfterItemAdded="OnAfterAddedTaskItem"/>
                 <MudCardActions Class="align-center justify-center">
                     <MudToggleGroup T="LastActiveButton" SelectionMode="SelectionMode.SingleSelection"
                                     @bind-Value="lastActiveButton" Color="Color.Primary" CheckMark FixedContent>
@@ -28,29 +31,30 @@
         </MudGrid>
 
         <MudStack Class="align-center justify-center" Row="true">
-            <MudText Typo="Typo.h4" Class="re">Список задач</MudText>
+            <MudText Typo="Typo.h4" Class="">Список задач</MudText>
             <MudMenu Icon="@Icons.Material.Outlined.FilterAlt" AriaLabel="Open user menu">
                 <MudMenuItem>
-                    <MudIconButton Icon="@Icons.Material.Outlined.TextFormat" 
+                    <MudIconButton Icon="@Icons.Material.Outlined.TextFormat"
                                    OnClick="@(async () => await Sort(FilterActive.SortAlphabetically))"/>
                     <MudText Inline="true">По алфавиту</MudText>
                 </MudMenuItem>
                 <MudMenuItem>
                     <MudIconButton Icon="@Icons.Material.Outlined.CalendarMonth"
-                                   OnClick="@(async () => await Sort(FilterActive.SortCreationDate))" />
+                                   OnClick="@(async () => await Sort(FilterActive.SortCreationDate))"/>
                     <MudText Inline="true">По дате открытия</MudText>
                 </MudMenuItem>
                 <MudMenuItem>
-                    <MudIconButton Icon="@Icons.Material.Outlined.CalendarToday" 
-                                   OnClick="@(async () => await Sort(FilterActive.SortExecutionDate))"></MudIconButton>
+                    <MudIconButton Icon="@Icons.Material.Outlined.CalendarToday"
+                                   OnClick="@(async () => await Sort(FilterActive.SortExecutionDate))">
+                    </MudIconButton>
                     <MudText Inline="true">По дате закрытия</MudText>
                 </MudMenuItem>
             </MudMenu>
-        </MudStack >
+        </MudStack>
         <MudStack Class="align-center justify-start" Row="true">
             <MudToggleIconButton @bind-Toggled="sortDirectionToggled"
                                  Icon="@Icons.Material.Filled.ExpandMore"
-                                 ToggledIcon="@Icons.Material.Filled.ExpandLess" />
+                                 ToggledIcon="@Icons.Material.Filled.ExpandLess"/>
             <MudText Inline="true">@filterActive</MudText>
         </MudStack>
     </MudItem>
@@ -63,13 +67,11 @@
     </div>
 </div>
 
-
-
 @code {
-    private List<TodoItemReply> todoItemsFiltered { get; set; } = new();
+    private List<TodoItemGrpc> todoItemsFiltered { get; set; } = new();
     [Parameter] public TaskList taskListPage { get; set; }
     private LastActiveButton lastActiveButton;
-    private List<TodoItemReply> todoItems = new();
+    private List<TodoItemGrpc> todoItems = new();
     private string filterActive = "По алфавиту";
     private bool sortDirectionToggled;
     private SortDirection sortDirection;
@@ -91,7 +93,7 @@
         PageActive();
     }
 
-    private void OnAfterAddedTaskItem(TodoItemReply val)
+    private void OnAfterAddedTaskItem(TodoItemGrpc val)
     {
         todoItems.Add(val);
         PageActive();
@@ -179,7 +181,6 @@
         }
         filterActive = "По дате открытия";
     }
-   
 
     private void PageActive()
     {
@@ -195,19 +196,5 @@
                 ListActive();
                 break;
         }
-    }
-
-    enum FilterActive
-    {
-        SortAlphabetically,
-        SortExecutionDate,
-        SortCreationDate
-    }
-
-    enum SortDirection
-    {
-        Ascending,
-        Descending
-        
     }
 }

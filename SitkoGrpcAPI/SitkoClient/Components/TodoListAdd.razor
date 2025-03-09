@@ -1,8 +1,7 @@
 ﻿@page "/TodoListAdd"
 @using Google.Protobuf.WellKnownTypes
-
 @rendermode InteractiveServer
-
+@inject ITodoService _servise
 
 <div class="tre g-col-6">
     <EditForm Model="_todoItemComponent" OnValidSubmit="SaveTodoList">
@@ -17,20 +16,14 @@
 </div> 
 
 @code {
-    // [Parameter] 
-    // public EventCallback<TodoItem> OnAfterItemAdded { get; set; }
+    [Parameter] 
+    public EventCallback<TodoItemGrpc> OnAfterItemAdded { get; set; }
     private TodoTaskCreateRequest _todoItemComponent = new();
 
     private async Task SaveTodoList()
     {
-        using var channel = GrpcChannel.ForAddress("https://localhost:7126");
-        var todo = new TodoService.TodoServiceClient(channel);
-        // todo.TodoItemByIdAsync(new TodoItemIdRequest { Id = "" });
-        // var e = await todo.TodoItemsAllAsync(new Google.Protobuf.WellKnownTypes.Empty());
-        _todoItemComponent.CreationDate = DateTime.UtcNow.ToTimestamp();
-        _todoItemComponent.ExecutionDate = new Timestamp();
-         await todo.TodoTaskCreateAsync(_todoItemComponent);
-
+        await OnAfterItemAdded.InvokeAsync(await _servise.TodoTaskCreateAsync(_todoItemComponent));
+        _todoItemComponent = new TodoTaskCreateRequest();
     }
     
 }

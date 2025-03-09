@@ -5,7 +5,6 @@
 <MudPaper Class="pa-4 mud-theme-primary form-control">
     <MudStack StretchItems="@stretch" Row>
         <MudCheckBox @bind-Value="@TodoItem.Completed" @onclick="CompleteTask"></MudCheckBox>
-        @* <MudTextField  disabled="true" @bind-Value="@TodoItem.Name"></MudTextField> *@
         <MudButton Variant="Variant.Text" OnClick="DescriptionGet" Style="justify-content: flex-start;">@TodoItem.Name</MudButton>
         <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" OnClick="Delete"/>
         
@@ -15,12 +14,13 @@
 
 @code {
     [Parameter] 
-    public TodoItemReply TodoItem { get; set; }
+    public TodoItemGrpc TodoItem { get; set; }
     [Parameter]
-    public EventCallback<TodoItemReply> OnAfterItemDeleted { get; set; }
-    [Parameter] public ITodoService TodoListService { get; set; }
+    public EventCallback<TodoItemGrpc> OnAfterItemDeleted { get; set; }
     [Parameter]
-    public EventCallback<TodoItemReply> OnAfterItemChange { get; set; }
+    public ITodoService TodoListService { get; set; }
+    [Parameter]
+    public EventCallback<TodoItemGrpc> OnAfterItemChange { get; set; }
     StretchItems stretch = StretchItems.Middle;
 
     public async Task DescriptionGet()
@@ -31,9 +31,15 @@
     public async Task CompleteTask()
     {
         if (TodoItem.Completed)
-            TodoItem.ExecutionDate = null;
+        {
+            TodoItem.ExecutionDate = new Timestamp();
+            TodoItem.Completed = false;
+        }
         else
+        {
             TodoItem.ExecutionDate = DateTime.UtcNow.ToTimestamp();
+            TodoItem.Completed = true;
+        }
 
         await TodoListService.TodoTaskUpdateAsync(TodoItem);
         await OnAfterItemChange.InvokeAsync(TodoItem);
