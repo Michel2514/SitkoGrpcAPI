@@ -16,7 +16,10 @@ namespace SitkoGrpcAPI.Services
 
         public override async Task<TodoItemsReply> TodoItemsAll(Empty request, ServerCallContext context)
         {
-            var todoItemsReply = await _db.TodoItems.Select(x => new TodoItemGrpc
+            var todoItemsReply = await _db.TodoItems.ToListAsync();
+
+            var todoItemsReplyList = new TodoItemsReply();
+            todoItemsReplyList.TodoItem.AddRange(todoItemsReply.Select(x => new TodoItemGrpc
             {
                 Id = x.Id.ToString(),
                 Name = x.Name,
@@ -24,10 +27,7 @@ namespace SitkoGrpcAPI.Services
                 CreationDate = x.CreationDate.ToTimestamp(),
                 ExecutionDate = x.ExecutionDate!.Value.ToTimestamp(),
                 Description = x.Description
-            }).ToListAsync();
-
-            var todoItemsReplyList = new TodoItemsReply();
-            todoItemsReplyList.TodoItem.AddRange(todoItemsReply);
+            }));
             return await Task.FromResult(todoItemsReplyList);
         }
 

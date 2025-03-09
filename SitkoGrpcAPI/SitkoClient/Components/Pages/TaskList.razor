@@ -15,7 +15,7 @@
                 <TodoListAdd OnAfterItemAdded="OnAfterAddedTaskItem"/>
                 <MudCardActions Class="align-center justify-center">
                     <MudToggleGroup T="LastActiveButton" SelectionMode="SelectionMode.SingleSelection"
-                                    @bind-Value="lastActiveButton" Color="Color.Primary" CheckMark FixedContent>
+                                    @bind-Value="activeButton" Color="Color.Primary" CheckMark FixedContent>
                         <MudToggleItem Value="@(LastActiveButton.AllList)">
                             <MudButton @onclick="AllList">Все</MudButton>
                         </MudToggleItem>
@@ -68,10 +68,11 @@
 </div>
 
 @code {
-    private List<TodoItemGrpc> todoItemsFiltered { get; set; } = new();
+    
     [Parameter] 
     public TaskList taskListPage { get; set; }
-    private LastActiveButton lastActiveButton;
+    private List<TodoItemGrpc> todoItemsFiltered { get; set; } = new();
+    private LastActiveButton activeButton;
     private List<TodoItemGrpc> todoItems = new();
     private string filterActive = "По алфавиту";
     private bool sortDirectionToggled;
@@ -83,7 +84,6 @@
         await GetAllTodos();
     }
 
-   
     private async Task GetAllTodos()
     {
         todoItems = await _servise.TodoListAllAsync();
@@ -104,21 +104,22 @@
     private void AllList()
     {
         todoItemsFiltered = todoItems;
-        lastActiveButton = LastActiveButton.AllList;
+        activeButton = LastActiveButton.AllList;
     }
 
     private void ListCompleted()
     {
 
         todoItemsFiltered =  todoItems.Where(_ => _.Completed).ToList();
-        lastActiveButton = LastActiveButton.ListCompleted;
+        activeButton = LastActiveButton.ListCompleted;
     }
 
     private void ListActive()
     {
         todoItemsFiltered = todoItems.Where(_ => !_.Completed).ToList();
-        lastActiveButton = LastActiveButton.ListActive;
+        activeButton = LastActiveButton.ListActive;
     }
+
     private async Task Sort(FilterActive filterActive)
     {
         sortDirection = 
@@ -139,6 +140,7 @@
         }
         PageActive();
     }
+
     private void SortAlphabetically()
     {
         switch (sortDirection)
@@ -186,7 +188,7 @@
 
     private void PageActive()
     {
-        switch (lastActiveButton)
+        switch (activeButton)
         {
             case LastActiveButton.AllList:
                 AllList();
