@@ -6,7 +6,7 @@
     {
         <TodoItemComponent TodoItem="@item" TodoListService="TodoListService"
                            OnAfterItemDeleted="OnAfterDeletedTaskItem" 
-                           OnAfterItemChange="OnAfterItemChengeInStatus" />
+                           OnAfterItemChange="OnAfterItemChangeInStatus" />
     }
 </div>
 
@@ -17,9 +17,7 @@
     [Parameter]
     public ITodoService TodoListService { get; set; }
     [Parameter] 
-    public TaskList TaskListPage { get; set; }
-    [Parameter] 
-    public EventCallback<TodoItemGrpc> OnAfterItemChengeInStatus { get; set; }
+    public EventCallback<TodoItemGrpc> OnAfterItemChangeInStatus { get; set; }
 
     private async Task OnAfterDeletedTaskItem(TodoItemGrpc val)
     {

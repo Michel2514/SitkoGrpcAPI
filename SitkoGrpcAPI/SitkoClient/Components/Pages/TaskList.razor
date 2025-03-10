@@ -4,7 +4,7 @@
 @using SitkoClient.Enums
 @using SortDirection = MudBlazor.SortDirection
 @rendermode InteractiveServer
-@inject ITodoService _servise
+@inject ITodoService _service
 
 
 <div>
@@ -60,18 +60,15 @@
     </MudItem>
 
     <div>
-        <TodoList TodoItems="todoItemsFiltered"
-                  TodoListService="_servise"
-                  TaskListPage="taskListPage"
-                  OnAfterItemChengeInStatus="OnAfterItemChangeInStatus"/>
+        <TodoList TodoItems="TodoItemsFiltered"
+                  TodoListService="_service"
+                  OnAfterItemChangeInStatus="OnAfterItemChangeInStatus"/>
     </div>
 </div>
 
 @code {
-    
-    [Parameter] 
-    public TaskList taskListPage { get; set; }
-    private List<TodoItemGrpc> todoItemsFiltered { get; set; } = new();
+
+    public List<TodoItemGrpc> TodoItemsFiltered { get; set; } = new();
     private LastActiveButton activeButton;
     private List<TodoItemGrpc> todoItems = new();
     private string filterActive = "По алфавиту";
@@ -86,7 +83,7 @@
 
     private async Task GetAllTodos()
     {
-        todoItems = await _servise.TodoListAllAsync();
+        todoItems = await _service.TodoListAllAsync();
         PageActive();
     }
 
@@ -103,20 +100,19 @@
 
     private void AllList()
     {
-        todoItemsFiltered = todoItems;
+        TodoItemsFiltered = todoItems;
         activeButton = LastActiveButton.AllList;
     }
 
     private void ListCompleted()
     {
-
-        todoItemsFiltered =  todoItems.Where(_ => _.Completed).ToList();
+        TodoItemsFiltered =  todoItems.Where(_ => _.Completed).ToList();
         activeButton = LastActiveButton.ListCompleted;
     }
 
     private void ListActive()
     {
-        todoItemsFiltered = todoItems.Where(_ => !_.Completed).ToList();
+        TodoItemsFiltered = todoItems.Where(_ => !_.Completed).ToList();
         activeButton = LastActiveButton.ListActive;
     }
 

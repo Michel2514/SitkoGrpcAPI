@@ -1,7 +1,6 @@
 ﻿@page "/TodoListAdd"
-@using Google.Protobuf.WellKnownTypes
 @rendermode InteractiveServer
-@inject ITodoService _servise
+@inject ITodoService _service
 
 <div class="tre g-col-6">
     <EditForm Model="_todoItemComponent" OnValidSubmit="SaveTodoList">
@@ -22,7 +21,7 @@
 
     private async Task SaveTodoList()
     {
-        await OnAfterItemAdded.InvokeAsync(await _servise.TodoTaskCreateAsync(_todoItemComponent));
+        await OnAfterItemAdded.InvokeAsync(await _service.TodoTaskCreateAsync(_todoItemComponent));
         _todoItemComponent = new TodoTaskCreateRequest();
     }
     

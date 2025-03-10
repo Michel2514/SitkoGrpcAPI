@@ -4,48 +4,48 @@ namespace SitkoClient.Services
 {
     public class TodoClientService : ITodoService
     {
-        private string APIgRPCService = "https://localhost:7126";
+        private readonly string APIgRPCService = "https://localhost:7126";
 
         public async Task<List<TodoItemGrpc>> TodoListAllAsync()
         {
             using var channel = GrpcChannel.ForAddress(APIgRPCService);
             var todo = new SitkoClient.TodoService.TodoServiceClient(channel);
-            var resultReply = await todo.TodoItemsAllAsync
+            var resultResponse = await todo.TodoItemsAllAsync
                 (new Google.Protobuf.WellKnownTypes.Empty());
-            return resultReply.TodoItem.ToList();
+            return resultResponse.TodoItem.ToList();
         }
 
         public async Task<TodoItemGrpc> TodoTaskCreateAsync(TodoTaskCreateRequest todoItem)
         {
             using var channel = GrpcChannel.ForAddress(APIgRPCService);
             var todo = new SitkoClient.TodoService.TodoServiceClient(channel);
-            var resultReply = await todo.TodoTaskCreateAsync(todoItem);
-            return resultReply;
+            var resultResponse = await todo.TodoTaskCreateAsync(todoItem);
+            return resultResponse;
         }
 
         public async Task<bool> TodoTaskUpdateAsync(TodoItemGrpc todoItemId)
         {
             using var channel = GrpcChannel.ForAddress(APIgRPCService);
             var todo = new SitkoClient.TodoService.TodoServiceClient(channel);
-            var resultReply = await todo.TodoTaskUpdateAsync(todoItemId);
-            return resultReply.Result;
+            var resultResponse = await todo.TodoTaskUpdateAsync(todoItemId);
+            return resultResponse.Result;
         }
 
         public async Task<TodoItemGrpc> TodoItemByIdAsync(string todoItemId)
         {
             using var channel = GrpcChannel.ForAddress(APIgRPCService);
             var todo = new SitkoClient.TodoService.TodoServiceClient(channel);
-            var resultReply = await todo.TodoItemByIdAsync
+            var resultResponse = await todo.TodoItemByIdAsync
                 (new TodoItemIdRequest { Id = todoItemId });
-            return resultReply;
+            return resultResponse;
         }
 
         public async Task<bool> TodoItemByIdDeleteAsync(string todoItemId)
         {
             using var channel = GrpcChannel.ForAddress(APIgRPCService);
             var todo = new SitkoClient.TodoService.TodoServiceClient(channel);
-            var resultReply = await todo.TodoItemByIdDeleteAsync(new TodoItemIdRequest { Id = todoItemId });
-            return resultReply.Result;
+            var resultResponse = await todo.TodoItemByIdDeleteAsync(new TodoItemIdRequest { Id = todoItemId });
+            return resultResponse.Result;
         }
     }
 }

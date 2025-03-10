@@ -1,7 +1,7 @@
 ﻿@page "/TaskDescription/{TodoItemId}"
 @using Google.Protobuf.WellKnownTypes
 @rendermode InteractiveServer
-@inject ITodoService _servise
+@inject ITodoService _service
 @inject NavigationManager Navigation
 
 <EditForm Model="@TodoItem" OnValidSubmit="ChangedSave">
@@ -16,10 +16,10 @@
                                       For="@(() => TodoItem.Name)"
                                       HelperText="Задача" />
                     </MudStack>
-                    <MudDatePicker @bind-Date="CreationDate"
+                    <MudDatePicker @bind-Date="creationDate"
                                    ReadOnly="true"
                                    HelperText="Дата создания" />
-                    <MudDatePicker @bind-Date="ExecutionDate"
+                    <MudDatePicker @bind-Date="executionDate"
                                    HelperText="Дата закрытия" />
                     <MudTextField T="string" Label="Добавить заметку" Lines="3"
                                   Variant="Variant.Outlined"
@@ -38,24 +38,23 @@
 
 @code {
     [Parameter] 
-    public string 
-    TodoItemId { get; set; } = "";
+    public string TodoItemId { get; set; } = "";
     [Parameter] 
-    public TodoItemGrpc TodoItem { get; set; } = new TodoItemGrpc();
-    private DateTime? CreationDate = new();
-    private DateTime? ExecutionDate = new();
+    public TodoItemGrpc TodoItem { get; set; } = new();
+    private DateTime? creationDate = new();
+    private DateTime? executionDate = new();
 
     protected override async Task OnInitializedAsync()
     {
-        TodoItem = await _servise.TodoItemByIdAsync(TodoItemId);
-        CreationDate = TodoItem.CreationDate.ToDateTime();
-        ExecutionDate = TodoItem.ExecutionDate.ToDateTime();
+        TodoItem = await _service.TodoItemByIdAsync(TodoItemId);
+        creationDate = TodoItem.CreationDate.ToDateTime();
+        executionDate = TodoItem.ExecutionDate.ToDateTime();
     }
 
     private async Task ChangedSave()
     {
-        TodoItem.ExecutionDate = ExecutionDate!.Value.ToTimestamp();
-        await _servise.TodoTaskUpdateAsync(TodoItem);
+        TodoItem.ExecutionDate = executionDate!.Value.ToTimestamp();
+        await _service.TodoTaskUpdateAsync(TodoItem);
         Navigation.NavigateTo("/");
     }
 
