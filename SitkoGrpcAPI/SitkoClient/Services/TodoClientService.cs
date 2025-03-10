@@ -12,7 +12,7 @@ namespace SitkoClient.Services
             var todo = new SitkoClient.TodoService.TodoServiceClient(channel);
             var resultResponse = await todo.TodoItemsAllAsync
                 (new Google.Protobuf.WellKnownTypes.Empty());
-            return resultResponse.TodoItem.ToList();
+            return resultResponse.TodoItems.ToList();
         }
 
         public async Task<TodoItemGrpc> TodoTaskCreateAsync(TodoTaskCreateRequest todoItem)

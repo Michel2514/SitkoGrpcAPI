@@ -8,11 +8,11 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 service TodoService{
-	rpc TodoItemsAll(google.protobuf.Empty) returns (TodoItemsReply);
+	rpc TodoItemsAll(google.protobuf.Empty) returns (TodoItemsResponse);
 	rpc TodoTaskCreate(TodoTaskCreateRequest) returns (TodoItemGrpc);
-	rpc TodoTaskUpdate(TodoItemGrpc) returns (ResultReply);
+	rpc TodoTaskUpdate(TodoItemGrpc) returns (ResultResponse);
 	rpc TodoItemById(TodoItemIdRequest) returns (TodoItemGrpc);
-	rpc TodoItemByIdDelete(TodoItemIdRequest) returns (ResultReply);
+	rpc TodoItemByIdDelete(TodoItemIdRequest) returns (ResultResponse);
 }
 
 message TodoItemGrpc{
@@ -24,8 +24,8 @@ message TodoItemGrpc{
 	google.protobuf.StringValue description = 6;
 }
 
-message TodoItemsReply{
-	repeated TodoItemGrpc todo_item = 1;
+message TodoItemsResponse{
+	repeated TodoItemGrpc todo_items = 1;
 }
 
 message TodoTaskCreateRequest{
@@ -40,6 +40,6 @@ message TodoItemIdRequest{
 	string id = 1;
 }
 
-message ResultReply {
+message ResultResponse {
 	bool result = 1;
 }

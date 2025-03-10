@@ -14,12 +14,12 @@ namespace SitkoGrpcAPI.Services
             _db = db;
         }
 
-        public override async Task<TodoItemsReply> TodoItemsAll(Empty request, ServerCallContext context)
+        public override async Task<TodoItemsResponse> TodoItemsAll(Empty request, ServerCallContext context)
         {
-            var todoItemsReply = await _db.TodoItems.ToListAsync();
+            var todoItemsResponse = await _db.TodoItems.ToListAsync();
+            var todoItemsResponseList = new TodoItemsResponse();
 
-            var todoItemsReplyList = new TodoItemsReply();
-            todoItemsReplyList.TodoItem.AddRange(todoItemsReply.Select(x => new TodoItemGrpc
+            todoItemsResponseList.TodoItems.AddRange(todoItemsResponse.Select(x => new TodoItemGrpc
             {
                 Id = x.Id.ToString(),
                 Name = x.Name,
@@ -28,7 +28,7 @@ namespace SitkoGrpcAPI.Services
                 ExecutionDate = x.ExecutionDate!.Value.ToTimestamp(),
                 Description = x.Description
             }));
-            return await Task.FromResult(todoItemsReplyList);
+            return todoItemsResponseList;
         }
 
         public override async Task<TodoItemGrpc> TodoItemById(TodoItemIdRequest request, ServerCallContext context)
@@ -36,40 +36,40 @@ namespace SitkoGrpcAPI.Services
             var todoItemByIdReply = await TodoItemGetById(request.Id);
             if (todoItemByIdReply != null)
             {
-                return await Task.FromResult(new TodoItemGrpc
+                return new TodoItemGrpc
                 {
                     Id = request.Id,
                     Name = todoItemByIdReply.Name,
                     Completed = todoItemByIdReply.Completed,
                     CreationDate = todoItemByIdReply.CreationDate.ToTimestamp(),
                     ExecutionDate = todoItemByIdReply.ExecutionDate!.Value.ToTimestamp(),
-
                     Description = todoItemByIdReply.Description
-                });
+                };
             }
 
-            return new TodoItemGrpc();
+            throw new RpcException(new Status(StatusCode.NotFound, "TodoItem by id not found "));
         }
 
-        public override async Task<ResultReply> TodoItemByIdDelete(TodoItemIdRequest request, ServerCallContext context)
+        public override async Task<ResultResponse> TodoItemByIdDelete(TodoItemIdRequest request,
+            ServerCallContext context)
         {
             try
             {
                 var todoItemById = await TodoItemGetById(request.Id);
-                if (todoItemById != null)
+                if (todoItemById == null)
                 {
-                    _db.TodoItems.Remove(todoItemById);
-                    await _db.SaveChangesAsync();
-                    return new ResultReply { Result = true };
+                    return new ResultResponse { Result = false };
                 }
 
-                Console.WriteLine("todoItem не найден");
-                return new ResultReply { Result = false };
+                _db.TodoItems.Remove(todoItemById);
+                await _db.SaveChangesAsync();
+                return new ResultResponse { Result = true };
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return await Task.FromResult(new ResultReply { Result = false });
+                throw new RpcException(new Status(StatusCode.Internal,
+                    "An unexpected event occurred during deletion"));
             }
         }
 
@@ -88,7 +88,8 @@ namespace SitkoGrpcAPI.Services
                 };
                 await _db.TodoItems.AddAsync(todoParse);
                 await _db.SaveChangesAsync();
-                return await Task.FromResult(new TodoItemGrpc
+
+                return new TodoItemGrpc
                 {
                     Id = todoParse.Id.ToString(),
                     Name = todoParse.Name,
@@ -96,16 +97,17 @@ namespace SitkoGrpcAPI.Services
                     CreationDate = todoParse.CreationDate.ToTimestamp(),
                     ExecutionDate = todoParse.ExecutionDate.Value.ToTimestamp(),
                     Description = todoParse.Description
-                });
+                };
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return await Task.FromResult(new TodoItemGrpc());
+                throw new RpcException(new Status(StatusCode.Internal,
+                    "An unexpected event occurred during added"));
             }
         }
 
-        public override async Task<ResultReply> TodoTaskUpdate(TodoItemGrpc request, ServerCallContext context)
+        public override async Task<ResultResponse> TodoTaskUpdate(TodoItemGrpc request, ServerCallContext context)
         {
             try
             {
@@ -117,31 +119,26 @@ namespace SitkoGrpcAPI.Services
                     todoById.Completed = request.Completed;
                     todoById.Description = request.Description;
                     await _db.SaveChangesAsync();
-                    return await Task.FromResult(new ResultReply { Result = true });
+                    return new ResultResponse { Result = true };
                 }
 
-
                 Console.WriteLine("todoItem не найден");
-                return await Task.FromResult(new ResultReply { Result = false });
+                return new ResultResponse { Result = false };
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return await Task.FromResult(new ResultReply { Result = false });
+                throw new RpcException(new Status(StatusCode.Internal,
+                    "An unexpected event occurred during update"));
             }
         }
 
         private async Task<TodoItem?> TodoItemGetById(string guidId)
         {
-            if (!Guid.TryParse(guidId, out Guid guidParse)) return null;
+            if (!Guid.TryParse(guidId, out var guidParse)) return null;
             var todoItemByIdReply = await _db.TodoItems
                 .FirstOrDefaultAsync(x => x.Id == guidParse);
-            if (todoItemByIdReply != null)
-            {
-                return await Task.FromResult(todoItemByIdReply);
-            }
-
-            return await Task.FromResult(new TodoItem());
+            return todoItemByIdReply;
         }
     }
 }
