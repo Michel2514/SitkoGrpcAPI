@@ -1,6 +1,6 @@
 ﻿namespace SitkoClient.Enums
 {
-    public enum LastActiveButton
+    public enum ActiveButton
     {
         AllList,
         ListCompleted,

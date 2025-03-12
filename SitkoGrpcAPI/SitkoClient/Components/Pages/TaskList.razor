@@ -1,80 +1,95 @@
 ﻿@page "/"
+@using System.ComponentModel
 @using System.Diagnostics
 @using System.Globalization
 @using SitkoClient.Enums
-@using SortDirection = MudBlazor.SortDirection
+@using SortDirection = SitkoClient.Enums.SortDirection
+
 @rendermode InteractiveServer
 @inject ITodoService _service
 
 
-<div>
-
-    <MudItem>
-        <MudGrid>
-            <MudCardContent Class="object-center">
-                <TodoListAdd OnAfterItemAdded="OnAfterAddedTaskItem"/>
-                <MudCardActions Class="align-center justify-center">
-                    <MudToggleGroup T="LastActiveButton" SelectionMode="SelectionMode.SingleSelection"
-                                    @bind-Value="activeButton" Color="Color.Primary" CheckMark FixedContent>
-                        <MudToggleItem Value="@(LastActiveButton.AllList)">
-                            <MudButton @onclick="AllList">Все</MudButton>
-                        </MudToggleItem>
-                        <MudToggleItem Value="LastActiveButton.ListCompleted">
-                            <MudButton @onclick="ListCompleted">Выполненые</MudButton>
-                        </MudToggleItem>
-                        <MudToggleItem Value="@(LastActiveButton.ListActive)">
-                            <MudButton @onclick="ListActive">Активные</MudButton>
-                        </MudToggleItem>
-                    </MudToggleGroup>
-                </MudCardActions>
-            </MudCardContent>
-        </MudGrid>
-
-        <MudStack Class="align-center justify-center" Row="true">
-            <MudText Typo="Typo.h4" Class="">Список задач</MudText>
-            <MudMenu Icon="@Icons.Material.Outlined.FilterAlt" AriaLabel="Open user menu">
-                <MudMenuItem>
-                    <MudIconButton Icon="@Icons.Material.Outlined.TextFormat"
-                                   OnClick="@(async () => await Sort(FilterActive.SortAlphabetically))"/>
-                    <MudText Inline="true">По алфавиту</MudText>
-                </MudMenuItem>
-                <MudMenuItem>
-                    <MudIconButton Icon="@Icons.Material.Outlined.CalendarMonth"
-                                   OnClick="@(async () => await Sort(FilterActive.SortCreationDate))"/>
-                    <MudText Inline="true">По дате открытия</MudText>
-                </MudMenuItem>
-                <MudMenuItem>
-                    <MudIconButton Icon="@Icons.Material.Outlined.CalendarToday"
-                                   OnClick="@(async () => await Sort(FilterActive.SortExecutionDate))">
-                    </MudIconButton>
-                    <MudText Inline="true">По дате закрытия</MudText>
-                </MudMenuItem>
-            </MudMenu>
-        </MudStack>
-        <MudStack Class="align-center justify-start" Row="true">
-            <MudToggleIconButton @bind-Toggled="sortDirectionToggled"
-                                 Icon="@Icons.Material.Filled.ExpandMore"
-                                 ToggledIcon="@Icons.Material.Filled.ExpandLess"/>
-            <MudText Inline="true">@filterActive</MudText>
-        </MudStack>
+<MudGrid>
+    <MudItem xs="12">
+        <MudItem>
+            <MudGrid>
+                <MudCardContent Class="object-center">
+                    <TodoListAdd OnAfterItemAdded="OnAfterAddedTaskItem"/>
+                    <MudCardActions Class="align-center justify-center">
+                        <MudToggleGroup T="ActiveButton" SelectionMode="SelectionMode.SingleSelection"
+                                        @bind-Value="activeButton" Color="Color.Primary" CheckMark FixedContent>
+                            <MudToggleItem Value="@(ActiveButton.AllList)">
+                                <MudButton @onclick="AllList">Все</MudButton>
+                            </MudToggleItem>
+                            <MudToggleItem Value="ActiveButton.ListCompleted">
+                                <MudButton @onclick="ListCompleted">Выполненые</MudButton>
+                            </MudToggleItem>
+                            <MudToggleItem Value="@(ActiveButton.ListActive)">
+                                <MudButton @onclick="ListActive">Активные</MudButton>
+                            </MudToggleItem>
+                        </MudToggleGroup>
+                    </MudCardActions>
+                </MudCardContent>
+            </MudGrid>
+            <MudStack Class="align-center justify-center" Row="true">
+                <MudText Typo="Typo.h4" Class="">Список задач</MudText>
+            </MudStack>
+            <MudItem xs="2">
+                <MudStack Class="align-center justify-start" Row="true">
+                    <MudToggleIconButton @bind-Toggled="SortDirectionToggled"
+                                         Icon="@Icons.Material.Filled.ExpandMore"
+                                         ToggledIcon="@Icons.Material.Filled.ExpandLess"/>
+                    <MudSelect @bind-Value="FilterActive">
+                        @foreach (var color in Enum.GetValues(typeof(FilterActive)).Cast<FilterActive>())
+                        {
+                            <MudSelectItem Value="@color">@color.ToStringRus() </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+            </MudItem>
+        </MudItem>
+        <MudItem>
+            <TodoList TodoItems="TodoItemsFiltered"
+                      TodoListService="_service"
+                      OnAfterItemChangeInStatus="OnAfterItemChangeInStatus"/>
+        </MudItem>
     </MudItem>
-
-    <div>
-        <TodoList TodoItems="TodoItemsFiltered"
-                  TodoListService="_service"
-                  OnAfterItemChangeInStatus="OnAfterItemChangeInStatus"/>
-    </div>
-</div>
+</MudGrid>
 
 @code {
-
+    
     public List<TodoItemGrpc> TodoItemsFiltered { get; set; } = new();
-    private LastActiveButton activeButton;
-    private List<TodoItemGrpc> todoItems = new();
-    private string filterActive = "По алфавиту";
-    private bool sortDirectionToggled;
-    private SortDirection sortDirection;
+    public FilterActive FilterActive
+    {
+        get => _filterActive;
+        set
+        {
+            _filterActive = value;
+            Sort();
+        }
+    }
 
+    private bool SortDirectionToggled
+    {
+        get => _sortDirectionToggled;
+        set
+        {
+            _sortDirectionToggled = value;
+            Sort();
+        }
+    }
+
+    private SortDirection sortDirection;
+    private ActiveButton activeButton;
+    private List<TodoItemGrpc> todoItems = new();
+    private bool _sortDirectionToggled;
+    private FilterActive _filterActive = FilterActive.SortAlphabetically;
+
+    protected void OnPropertyChanged()
+    {
+        AllList();
+    }
+    
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -101,28 +116,26 @@
     private void AllList()
     {
         TodoItemsFiltered = todoItems;
-        activeButton = LastActiveButton.AllList;
+        activeButton = ActiveButton.AllList;
     }
 
     private void ListCompleted()
     {
         TodoItemsFiltered =  todoItems.Where(_ => _.Completed).ToList();
-        activeButton = LastActiveButton.ListCompleted;
+        activeButton = ActiveButton.ListCompleted;
     }
 
     private void ListActive()
     {
         TodoItemsFiltered = todoItems.Where(_ => !_.Completed).ToList();
-        activeButton = LastActiveButton.ListActive;
+        activeButton = ActiveButton.ListActive;
     }
 
-    private async Task Sort(FilterActive filterActive)
+    private async Task Sort()
     {
-        sortDirection = 
-            sortDirection == SortDirection.Ascending
-            ? SortDirection.Descending : SortDirection.Ascending;
-         sortDirectionToggled = sortDirection == SortDirection.Ascending;
-        switch (filterActive)
+        sortDirection = SortDirectionToggled ? 
+            SortDirection.Ascending : SortDirection.Descending;
+        switch (FilterActive)
         {
             case FilterActive.SortAlphabetically:
                 SortAlphabetically();
@@ -149,7 +162,6 @@
                 todoItems = todoItems.OrderByDescending(x => x.Name).ToList();
                 break;
         }
-        filterActive = "По алфавиту";
     }
 
     private void SortExecutionDate()
@@ -164,7 +176,6 @@
                 todoItems = todoItems.OrderByDescending(x => x.ExecutionDate).ToList();
                 break;
         }
-        filterActive = "По дате закрытия";
     }
 
     private void SortCreationDate()
@@ -179,20 +190,19 @@
                 todoItems = todoItems.OrderByDescending(x => x.CreationDate).ToList();
                 break;
         }
-        filterActive = "По дате открытия";
     }
 
     private void PageActive()
     {
         switch (activeButton)
         {
-            case LastActiveButton.AllList:
+            case ActiveButton.AllList:
                 AllList();
                 break;
-            case LastActiveButton.ListCompleted:
+            case ActiveButton.ListCompleted:
                 ListCompleted();
                 break;
-            case LastActiveButton.ListActive:
+            case ActiveButton.ListActive:
                 ListActive();
                 break;
         }

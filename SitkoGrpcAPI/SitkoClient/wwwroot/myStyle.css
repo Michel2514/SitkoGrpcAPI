@@ -1,9 +1,4 @@
-﻿.re {
-    text-align: center;
-    margin-top:10px;
-    margin-bottom:10px;
-}
-.tre{
+﻿.tre{
     margin:auto;
     margin-top: 50px;
     width: 50%;
@@ -16,4 +11,9 @@
 .button .text-left-align {
     justify-content: flex-start;
     text-align: left;
+}
+.underline {
+    border-top: 2px solid black;
+    border-bottom: 2px solid black; 
+    padding: 5px 0;
 }

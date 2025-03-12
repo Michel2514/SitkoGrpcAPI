@@ -1,11 +1,14 @@
-﻿<div>
+﻿@using Google.Protobuf.WellKnownTypes
+@rendermode InteractiveServer
+
+<MudItem>
     @foreach (var item in TodoItems)
     {
         <TodoItemComponent TodoItem="@item" TodoListService="TodoListService"
-                           OnAfterItemDeleted="OnAfterDeletedTaskItem" 
-                           OnAfterItemChange="OnAfterItemChangeInStatus" />
+                           OnAfterItemDeleted="OnAfterDeletedTaskItem"
+                           OnAfterItemChange="OnAfterItemChangeInStatus"/>
     }
-</div>
+</MudItem>
 
 
 @code {
@@ -18,7 +21,7 @@
 
     private async Task OnAfterDeletedTaskItem(TodoItemGrpc val)
     {
-        TodoItems.Remove(val);
+        await Task.Run(() => TodoItems.Remove(val));
     }
 
 }

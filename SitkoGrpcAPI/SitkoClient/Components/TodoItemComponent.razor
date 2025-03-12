@@ -1,16 +1,17 @@
 ﻿@using Google.Protobuf.WellKnownTypes
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
+<MudItem Class=" mt-1">
+    <MudPaper Class="pa-4 form-control" Style="border-top: 1px solid #c4c4c4;
+    border-bottom: 1px solid #c4c4c4;">
+        <MudStack StretchItems="@StretchItems.Middle" Row>
+            <MudCheckBox @bind-Value="@TodoItem.Completed" @onclick="CompleteTask"></MudCheckBox>
+            <MudButton Variant="Variant.Text" OnClick="DescriptionGet" Style="justify-content: flex-start;">@TodoItem.Name</MudButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" OnClick="Delete"/>
 
-<MudPaper Class="pa-4 mud-theme-primary form-control">
-    <MudStack StretchItems="@StretchItems.Middle" Row>
-        <MudCheckBox @bind-Value="@TodoItem.Completed" @onclick="CompleteTask"></MudCheckBox>
-        <MudButton Variant="Variant.Text" OnClick="DescriptionGet" Style="justify-content: flex-start;">@TodoItem.Name</MudButton>
-        <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" OnClick="Delete"/>
-        
-    </MudStack>
-</MudPaper>
-
+        </MudStack>
+    </MudPaper>
+</MudItem>
 
 @code {
     [Parameter] 

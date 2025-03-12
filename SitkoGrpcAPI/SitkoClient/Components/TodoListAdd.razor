@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 @inject ITodoService _service
 
-<div class="tre g-col-6">
+<MudItem xs="6" Class="tre">
     <EditForm Model="_todoItemComponent" OnValidSubmit="SaveTodoList">
         <DataAnnotationsValidator/>
         <ValidationSummary/>
@@ -12,7 +12,7 @@
                       RequiredError="!"
                       OnlyValidateIfDirty="true"/>
     </EditForm>
-</div> 
+</MudItem> 
 
 @code {
     [Parameter] 
