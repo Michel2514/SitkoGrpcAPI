@@ -1,4 +1,5 @@
 ﻿@using Google.Protobuf.WellKnownTypes
+@using SitkoClient.Components.Pages
 @rendermode InteractiveServer
 
 <MudItem>
@@ -10,10 +11,10 @@
     }
 </MudItem>
 
-
 @code {
+
     [Parameter] 
-    public List<TodoItemGrpc> TodoItems { get; set; } = new();
+    public List<TodoItemGrpc> TodoItems { get; set; }
     [Parameter]
     public ITodoService TodoListService { get; set; }
     [Parameter] 
@@ -23,5 +24,4 @@
     {
         await Task.Run(() => TodoItems.Remove(val));
     }
-
 }

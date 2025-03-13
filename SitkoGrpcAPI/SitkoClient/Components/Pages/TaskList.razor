@@ -84,21 +84,24 @@
     private List<TodoItemGrpc> todoItems = new();
     private bool _sortDirectionToggled;
     private FilterActive _filterActive = FilterActive.SortAlphabetically;
+    public EventCallback<List<TodoItemGrpc>> Ew;
 
-    protected void OnPropertyChanged()
-    {
-        AllList();
-    }
-    
-    protected override async Task OnInitializedAsync()
+  protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         await GetAllTodos();
     }
 
+    protected void OnPropertyChanged()
+    {
+        AllList();
+    }
+
     private async Task GetAllTodos()
     {
+        StateHasChanged();
         todoItems = await _service.TodoListAllAsync();
+        await Ew.InvokeAsync(todoItems);
         PageActive();
     }
 

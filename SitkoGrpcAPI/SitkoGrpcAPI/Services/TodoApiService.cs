@@ -14,6 +14,11 @@ namespace SitkoGrpcAPI.Services
             _db = db;
         }
 
+        /// <summary>
+        /// Возвращает все коллекцию TodoItemGrpc.
+        /// </summary>
+        /// <param name="request">Передается Google.Protobuf.WellKnownTypes.Empty().</param>
+        /// <returns>Возвращает объект TodoItemsResponse с коллекцией TodoItems.</returns>
         public override async Task<TodoItemsResponse> TodoItemsAll(Empty request, ServerCallContext context)
         {
             var todoItemsResponse = await _db.TodoItems.ToListAsync();
@@ -31,6 +36,13 @@ namespace SitkoGrpcAPI.Services
             return todoItemsResponseList;
         }
 
+        /// <summary>
+        /// Возвращает TodoItemGrpc по id типа string
+        /// </summary>
+        /// <param name="request">Передается строковое представление Guid.</param>
+        /// <param name="context"></param>
+        /// <returns>Возвращает элемент TodoItemGrpc по Id, если такой есть.</returns>
+        /// <exception cref="RpcException">Если элемента нет, выбрасывает исключение StatusCode.NotFound.</exception>
         public override async Task<TodoItemGrpc> TodoItemById(TodoItemIdRequest request, ServerCallContext context)
         {
             var todoItemByIdReply = await TodoItemGetById(request.Id);
@@ -50,6 +62,13 @@ namespace SitkoGrpcAPI.Services
             throw new RpcException(new Status(StatusCode.NotFound, "TodoItem by id not found "));
         }
 
+        /// <summary>
+        /// Удаляет TodoItemGrpc по id типа string.
+        /// </summary>
+        /// <param name="request">Передается строковое представление Guid.</param>
+        /// <param name="context"></param>
+        /// <returns>Возвращает результат удаления true или false в объекте ResultResponse.</returns>
+        /// <exception cref="RpcException">Если при удалении возникли не предвиденные ситуации, выбрасывает исключение StatusCode.Internal.</exception>
         public override async Task<ResultResponse> TodoItemByIdDelete(TodoItemIdRequest request,
             ServerCallContext context)
         {
@@ -73,6 +92,13 @@ namespace SitkoGrpcAPI.Services
             }
         }
 
+        /// <summary>
+        /// Создает новый объект TodoItem.
+        /// </summary>
+        /// <param name="request">Принимает новый объект TodoItemGrpc без поля Id.</param>
+        /// <param name="context"></param>
+        /// <returns>Возвращает сохраненный элемент TodoItemGrpc с присвоенным значением поля Id.</returns>
+        /// <exception cref="RpcException">Если при сохранении произошла ошибка, выбрасывает исключение StatusCode.Internal.</exception>
         public override async Task<TodoItemGrpc> TodoTaskCreate
             (TodoTaskCreateRequest request, ServerCallContext context)
         {
@@ -107,6 +133,13 @@ namespace SitkoGrpcAPI.Services
             }
         }
 
+        /// <summary>
+        /// Сохраняет измененный объект TodoItemGrpc. 
+        /// </summary>
+        /// <param name="request">Принимает измененный объект TodoItemGrpc.</param>
+        /// <param name="context"></param>
+        /// <returns>Возвращает результат сохранения true или false в объекте ResultResponse.</returns>
+        /// <exception cref="RpcException"></exception>
         public override async Task<ResultResponse> TodoTaskUpdate(TodoItemGrpc request, ServerCallContext context)
         {
             try
