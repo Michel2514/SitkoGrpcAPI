@@ -2,23 +2,35 @@
 @using SitkoClient.Components.Pages
 @rendermode InteractiveServer
 
-<MudItem>
-    @foreach (var item in TodoItems)
-    {
-        <TodoItemComponent TodoItem="@item" TodoListService="TodoListService"
+<MudDropContainer @ref="_dropContainer" T="TodoItemGrpc" Items="TodoItems" ItemsSelector="@((item, dropzone) => true)" Class="d-flex flex-wrap flex-grow-1">
+    <ChildContent>
+        <MudPaper Class="ma-4 flex-grow-1">
+            <MudList T="string" Class="d-flex flex-column mud-height-full">
+                <MudDropZone T="TodoItemGrpc" Class="flex-grow-1" AllowReorder="true" />
+            </MudList>
+        </MudPaper>
+    </ChildContent>
+    <ItemRenderer>
+        <TodoItemComponent TodoItem="context" 
                            OnAfterItemDeleted="OnAfterDeletedTaskItem"
-                           OnAfterItemChange="OnAfterItemChangeInStatus"/>
-    }
-</MudItem>
+                           TodoListService="TodoListService"
+                           OnAfterItemChange="OnAfterItemChangeInStatus" />
+    </ItemRenderer>
+</MudDropContainer>
 
 @code {
-
-    [Parameter] 
-    public List<TodoItemGrpc> TodoItems { get; set; }
+    [Parameter] public List<TodoItemGrpc> TodoItems { get; set; } = new();
     [Parameter]
     public ITodoService TodoListService { get; set; }
     [Parameter] 
     public EventCallback<TodoItemGrpc> OnAfterItemChangeInStatus { get; set; }
+    private MudDropContainer<TodoItemGrpc> _dropContainer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        _dropContainer.Refresh();
+    }
 
     private async Task OnAfterDeletedTaskItem(TodoItemGrpc val)
     {
