@@ -24,7 +24,7 @@
     public EventCallback<TodoItemGrpc> OnAfterItemChange { get; set; }
    
 
-    public async Task DescriptionGet()
+    public void DescriptionGet()
     {
         Navigation.NavigateTo($"TaskDescription/{TodoItem.Id}");
     }

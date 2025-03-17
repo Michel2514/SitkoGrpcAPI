@@ -19,8 +19,9 @@
 </MudDropContainer>
 
 @code {
-    [Parameter] public List<TodoItemGrpc> TodoItems { get; set; } = new();
-    [Parameter]
+    [Parameter] 
+    public List<TodoItemGrpc> TodoItems { get; set; } = new();
+    [Parameter] 
     public ITodoService TodoListService { get; set; }
     [Parameter] 
     public EventCallback<TodoItemGrpc> OnAfterItemChangeInStatus { get; set; }
